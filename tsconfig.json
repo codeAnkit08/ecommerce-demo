@@ -1,6 +1,8 @@
 {
   "compilerOptions": {
     //"ignoreDeprecations": "6.0",
+    "typeRoots": ["./node_modules/@types"],
+    "types": ["node", "express","multer"],
     "module": "nodenext",
     "moduleResolution": "nodenext",
     "resolvePackageJsonExports": true,

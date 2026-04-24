@@ -13,9 +13,14 @@ export class Product {
   @Column()
   price!: number;
 
-  @Column()
+  @Column({nullable: true})
   description!: string;
 
   @ManyToOne(() => Category, (category) => category.products)
   category!: Category;
+
+  // product.entity.ts
+
+  @Column({ nullable: true })
+  imageKey!: string;
 }

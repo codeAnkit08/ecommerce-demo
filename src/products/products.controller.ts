@@ -1,9 +1,11 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, Patch, Post, UploadedFile, UseGuards, UseInterceptors } from "@nestjs/common";
 import { CreateProductDto } from "./dtos/create-product.dto";
 import { ProductsService } from "./products.service";
 import { JwtAuthGuard } from "src/auth/jwt.guard";
 import { RolesGuard } from "src/common/guards/role.guard";
 import { Roles } from "src/common/decorators/role.decorator";
+import { FileInterceptor } from "@nestjs/platform-express";
+import * as multer from "multer";
 
 @Controller('products')
 export class ProductsController {
@@ -11,14 +13,21 @@ export class ProductsController {
     constructor(private readonly productService: ProductsService) {}
 
     @UseGuards(JwtAuthGuard, RolesGuard)
+    @UseInterceptors(
+        FileInterceptor('image', {
+            storage: multer.memoryStorage(),
+        }),
+    )
     @Roles('admin')
     @Post()
-    async createProduct(@Body() data: CreateProductDto) {
+    async createProduct(
+        @UploadedFile() file: Express.Multer.File,
+        @Body() data: CreateProductDto) {
         console.log('Creating product:', data);
-        return await this.productService.createProduct(data);
+        return await this.productService.createProduct(data, file);
     }
-    
-    @Get()   
+
+    @Get()
     async getProducts() {
         return await this.productService.getProducts();
     }

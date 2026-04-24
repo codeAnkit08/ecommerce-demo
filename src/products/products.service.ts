@@ -1,24 +1,34 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { CreateProductDto } from "./dtos/create-product.dto";
 import { ProductsRepository } from "./products.re\pository";
-import { NotFoundError } from "rxjs";
 import { CategoryRepository } from "src/categories/category.repository";
+import { S3Service } from "src/common/s3/s3.service";
 
 @Injectable()
 export class ProductsService {
 
-    constructor(private readonly productsRepository: ProductsRepository, private readonly categoryRepository: CategoryRepository) { }
+    constructor(private readonly productsRepository: ProductsRepository, private readonly categoryRepository: CategoryRepository,private readonly s3Service: S3Service  ) { }
 
-    async createProduct(data: CreateProductDto) {
+    async createProduct(data: CreateProductDto,file: Express.Multer.File) {
+        console.log('Creating product with data:', data);
         const category = await this.categoryRepository.findById(data.categoryId);
         if (!category) {
             throw new NotFoundException('Category not found'); // 🔥
         }
-        return await this.productsRepository.createProduct({ ...data, category });
+        console.log('File uploaded:', file);
+        const { key, url } = await this.s3Service.uploadFile(file);
+        return await this.productsRepository.createProduct({ ...data, category, imageKey: key });
     }
 
     async getProducts() {
-        return await this.productsRepository.findAll();
+        const products = await this.productsRepository.findAll();
+        const updatedProducts = await Promise.all(
+            products.map(async (product) => ({
+                ...product,
+                imageUrl: product.imageKey ? await this.s3Service.getSignedUrl(product.imageKey) : null, // 🔥 return signed URL
+            }))
+        );
+        return updatedProducts;
     }
 
     async getProductById(id: string) {
