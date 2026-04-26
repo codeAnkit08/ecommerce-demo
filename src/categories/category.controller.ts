@@ -19,6 +19,11 @@ export class CategoryController {
     @Roles('admin')
     @Post()
     async createCategory(@Body() data: CreateCategoryDto) {
-        return this.categoryService.createCategory(data);
+        const category = await this.categoryService.createCategory(data);
+        return {
+            success: true,
+            data: category,
+            message: "Category created successfully"
+        }
     }
 }

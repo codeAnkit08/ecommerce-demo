@@ -8,6 +8,7 @@ import { CartItemRepository } from './cart-item.repository';
 import { ProductsRepository } from 'src/products/products.repository';
 import { User } from 'src/users/entities/user.entity';
 import { UsersService } from 'src/users/users.service';
+import { S3Service } from 'src/common/s3/s3.service';
 
 @Injectable()
 export class CartService {
@@ -16,6 +17,7 @@ export class CartService {
     private cartItemRepo: CartItemRepository,
     private productRepo: ProductsRepository,
     private usersService: UsersService,
+    private s3Service: S3Service,
 
   ) { }
 
@@ -30,12 +32,12 @@ export class CartService {
       let cart = await this.cartRepo.findByUserId(userId);
       console.log('Cart found:', cart);
       if (!cart) {
-         cart = await this.cartRepo.create({
-         user: user as User,
+        cart = await this.cartRepo.create({
+          user: user as User,
         });
       }
 
-      console.log("cart created",cart);
+      console.log("cart created", cart);
 
       // 🔹 Check product
       const product = await this.productRepo.findById(productId);
@@ -73,25 +75,43 @@ export class CartService {
   // 📦 Get full cart
   async getCart(userId: string) {
     const cart = await this.cartRepo.findWithItems(userId);
-    console.log('Cart retrieved for userId:', userId, cart);
 
     if (!cart) {
       throw new NotFoundException('Cart not found');
     }
 
-    return cart;
+    const items = await Promise.all(
+      cart.items.map(async (item) => {
+        const imageUrl = item.product?.imageKey
+          ? await this.s3Service.getSignedUrl(item.product.imageKey)
+          : null;
+
+        return {
+          id: item.id,
+          quantity: item.quantity,
+          product: {
+            id: item.product.id,
+            name: item.product.name,
+            price: item.product.price,
+            imageUrl,
+          },
+        };
+      })
+    );
+
+    return { ...cart, items };
   }
 
   // ❌ Remove item
   async removeItem(userId: string, itemId: string) {
     const cart = await this.cartRepo.findWithItems(userId);
-    console.log("itemId----->",itemId);
+    console.log("itemId----->", itemId);
 
     if (!cart) {
       throw new NotFoundException('Cart not found');
     }
 
-    console.log("cart items----->",cart.items);
+    console.log("cart items----->", cart.items);
 
     const item = cart.items?.find((i) => i.id === itemId);
 

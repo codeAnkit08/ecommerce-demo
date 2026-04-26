@@ -9,12 +9,13 @@ import { CartItemRepository } from './cart-item.repository';
 import { CartRepository } from './cart.repository';
 import { CartService } from './cart.service';
 import { ProductsRepository } from 'src/products/products.repository';
+import { S3Service } from 'src/common/s3/s3.service';
 
 @Module({
     imports: [TypeOrmModule.forFeature([Cart, CartItem]),
         ProductsModule, UsersModule],
     controllers: [CartController],
-    providers: [CartRepository, CartItemRepository,CartService, ProductsRepository],
+    providers: [CartRepository, CartItemRepository,CartService, ProductsRepository,S3Service],
     exports: [CartService]
 })
 export class CartModule { }

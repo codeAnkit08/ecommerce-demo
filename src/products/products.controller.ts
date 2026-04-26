@@ -23,8 +23,12 @@ export class ProductsController {
     async createProduct(
         @UploadedFile() file: Express.Multer.File,
         @Body() data: CreateProductDto) {
-        console.log('Creating product:', data);
-        return await this.productService.createProduct(data, file);
+        const  product = await this.productService.createProduct(data, file);
+        return {
+            success: true,
+            data: product,
+            message: "Product created successfully"
+        }
     }
 
     @Get()
