@@ -22,7 +22,12 @@ export class CartController {
   @Post()
   addToCart(@CurrentUser() user, @Body() dto: any) {
     console.log('Add to cart request:', { user, dto });
-    return this.cartService.addToCart(user.id, dto);
+    const result = this.cartService.addToCart(user.id, dto);
+    return {
+      success: true,
+      message: 'Item added to cart',
+      data: result,
+    }
   }
 
   // 📦 Get cart
@@ -35,7 +40,12 @@ export class CartController {
   // ❌ Remove item
   @Delete(':itemId')
   removeItem(@CurrentUser() user, @Param('itemId') itemId: string) {
-    return this.cartService.removeItem(user.sub, itemId);
+   const result = this.cartService.removeItem(user.id, itemId);
+   return {
+      success: true,
+      message: 'Item removed from cart',
+      data: result
+   };
   }
 
   // 🔄 Update quantity
@@ -45,6 +55,6 @@ export class CartController {
     @Param('itemId') itemId: string,
     @Body('quantity') quantity: number,
   ) {
-    return this.cartService.updateQuantity(user.sub, itemId, quantity);
+    return this.cartService.updateQuantity(user.id, itemId, quantity);
   }
 }
