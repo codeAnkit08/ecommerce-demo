@@ -7,9 +7,9 @@ import { S3Service } from "src/common/s3/s3.service";
 @Injectable()
 export class ProductsService {
 
-    constructor(private readonly productsRepository: ProductsRepository, private readonly categoryRepository: CategoryRepository,private readonly s3Service: S3Service  ) { }
+    constructor(private readonly productsRepository: ProductsRepository, private readonly categoryRepository: CategoryRepository, private readonly s3Service: S3Service) { }
 
-    async createProduct(data: CreateProductDto,file: Express.Multer.File) {
+    async createProduct(data: CreateProductDto, file: Express.Multer.File) {
         console.log('Creating product with data:', data);
         const category = await this.categoryRepository.findById(data.categoryId);
         if (!category) {
@@ -22,13 +22,24 @@ export class ProductsService {
 
     async getProducts() {
         const products = await this.productsRepository.findAll();
-        const updatedProducts = await Promise.all(
+
+        return Promise.all(
             products.map(async (product) => ({
-                ...product,
-                imageUrl: product.imageKey ? await this.s3Service.getSignedUrl(product.imageKey) : null, // 🔥 return signed URL
+                id: product.id,
+                name: product.name,
+                price: product.price,
+                description: product.description,
+                imageUrl: product.imageKey
+                    ? await this.s3Service.getSignedUrl(product.imageKey)
+                    : null,
+                category: product.category
+                    ? {
+                        id: product.category.id,
+                        name: product.category.name,
+                    }
+                    : null,
             }))
         );
-        return updatedProducts;
     }
 
     async getProductById(id: string) {
@@ -36,7 +47,21 @@ export class ProductsService {
         if (!product) {
             throw new NotFoundException('Product not found'); // 🔥
         }
-        return product;
+        return {
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            description: product.description,
+            imageUrl: product.imageKey
+                ? await this.s3Service.getSignedUrl(product.imageKey)
+                : null,
+            category: product.category
+                ? {
+                    id: product.category.id,
+                    name: product.category.name,
+                }
+                : null,
+        };
     }
 
     async deleteProductById(id: string) {

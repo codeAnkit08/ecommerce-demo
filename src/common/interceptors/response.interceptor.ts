@@ -1,21 +1,29 @@
-// common/interceptors/response.interceptor.ts
 import {
-    CallHandler,
-    ExecutionContext,
-    Injectable,
-    NestInterceptor,
+  Injectable,
+  NestInterceptor,
+  ExecutionContext,
+  CallHandler,
 } from '@nestjs/common';
 import { map } from 'rxjs/operators';
+import { GqlExecutionContext } from '@nestjs/graphql';
 
 @Injectable()
 export class ResponseInterceptor implements NestInterceptor {
-    intercept(context: ExecutionContext, next: CallHandler) {
-        return next.handle().pipe(
-            map((res: any) => ({
-                success: true,
-                message: res.message || 'Request successful',
-                data: res.data ?? res,
-            })),
-        );
+  intercept(context: ExecutionContext, next: CallHandler) {
+    // 🔥 detect GraphQL request
+    const gqlContext = GqlExecutionContext.create(context);
+
+    if (gqlContext.getType() === 'graphql') {
+      return next.handle(); // ✅ DO NOT wrap
     }
+
+    // REST responses
+    return next.handle().pipe(
+      map((res) => ({
+        success: true,
+        data: res.data ?? res,
+        message: res.message || "Request Successful",
+      })),
+    );
+  }
 }

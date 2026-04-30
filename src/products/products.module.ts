@@ -6,11 +6,12 @@ import { Product } from './entities/product.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CategoryRepository } from 'src/categories/category.repository';
 import { S3Service } from 'src/common/s3/s3.service';
+import { ProductResolver } from './product.resolver';
 
 @Module({
     imports: [TypeOrmModule.forFeature([Product])],
     controllers: [ProductsController],
-    providers: [ProductsService,ProductsRepository,CategoryRepository,S3Service],
+    providers: [ProductResolver,ProductsService,ProductsRepository,CategoryRepository,S3Service],
     exports: [ProductsService,CategoryRepository]
 })
 export class ProductsModule {}

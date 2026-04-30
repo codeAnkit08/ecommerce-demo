@@ -1,0 +1,22 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type CategoryModel {
+  id: ID!
+  name: String!
+}
+
+type ProductModel {
+  id: ID!
+  name: String!
+  price: Float!
+  description: String
+  imageUrl: String
+  category: CategoryModel
+}
+
+type Query {
+  products: [ProductModel!]!
+  product(id: String!): ProductModel!
+}
