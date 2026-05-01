@@ -41,6 +41,8 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 
       playground: true, // ✅ enable UI
 
+      introspection: true,
+
       path: '/graphql', // optional but good
     }),
     AuthModule,
