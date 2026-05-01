@@ -40,7 +40,7 @@ import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin
 
       autoSchemaFile: true, // ✅ better path
 
-      playground: true, // ✅ enable UI
+      playground: false, // ✅ enable UI
 
       introspection: true,
 
