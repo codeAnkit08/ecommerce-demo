@@ -9,7 +9,6 @@ import { CategoriesModule } from './categories/categories.module';
 import { CartModule } from './cart/cart.module';
 import { OrdersModule } from './orders/orders.module';
 import { GraphQLModule } from '@nestjs/graphql';
-import { join } from 'path/win32';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 
 @Module({
@@ -37,7 +36,7 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver, // ✅ REQUIRED
 
-      autoSchemaFile: join(process.cwd(), 'src/schema.gql'), // ✅ better path
+      autoSchemaFile: true, // ✅ better path
 
       playground: true, // ✅ enable UI
 
