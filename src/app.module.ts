@@ -10,6 +10,8 @@ import { CartModule } from './cart/cart.module';
 import { OrdersModule } from './orders/orders.module';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
+import { ApolloServerPluginLandingPageLocalDefault } from '@apollo/server/plugin/landingPage/default';
+
 
 @Module({
   imports: [
@@ -41,6 +43,8 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
       playground: true, // ✅ enable UI
 
       introspection: true,
+
+      plugins: [ApolloServerPluginLandingPageLocalDefault()],
 
       path: '/graphql', // optional but good
     }),
